@@ -1,29 +1,37 @@
-"""
-滑动验证码解决
-"""
-import time
+from Crypto.Cipher import AES
 import json
 import base64
-import os
-import requests, re
+import requests
+import re
 from binascii import b2a_hex, a2b_hex, b2a_base64
-
-import random, time, datetime, json, http.cookiejar
-
+import time
+import datetime
+import json
 from urllib3.exceptions import InsecureRequestWarning
+import argparse
 
-# user_name, password, times_dict, room, seat, email
-stu_dect = [
-    ("0wL5SUvL9VE0A1aczcHVkQ==", "eaqOa84KlXUQHC91SGrKGQ==", [("09:00", "22:00")], '2609', '242', "xxxxxxxxxxxxxxxxx@163.com")
-]
+BLOCK_SIZE = 16  # Bytes
+def pad(s): return s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * \
+    chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
+
+def unpad(s): return s[:-ord(s[len(s) - 1:])]
+
+def AES_Encrypt(data):
+    vi = "u2oh6Vu^HWe4_AES"
+    key = "u2oh6Vu^HWe4_AES"
+    data = pad(data)  # 字符串补位
+    cipher = AES.new(key.encode('utf8'), AES.MODE_CBC, vi.encode('utf8'))
+    # 加密后得到的是bytes类型的数据，使用Base64进行编码,返回byte字符串
+    encryptedbytes = cipher.encrypt(data.encode('utf8'))
+    encodestrs = base64.b64encode(encryptedbytes)  # 对byte字符串按utf-8进行解码
+    enctext = encodestrs.decode('utf8')
+    return enctext
 
 
-class tieba_login:
+class reserve:
     def __init__(self):
-        self.sut_dect = stu_dect
         self.login_page = "https://passport2.chaoxing.com/mlogin?loginType=1&newversion=true&fid="
         self.url = "https://office.chaoxing.com/front/third/apps/seat/code?id={}&seatNum={}"
-        self.is_can_appoint_url = "https://office.chaoxing.com/data/apps/seat/room/info"
         self.submit_url = "https://office.chaoxing.com/data/apps/seat/submit"
         self.seat_url = "https://office.chaoxing.com/data/apps/seat/getusedtimes"
         self.login_url = "https://passport2.chaoxing.com/fanyalogin"
@@ -31,8 +39,6 @@ class tieba_login:
         self.success_times = 0
         self.fail_dict = []
         self.submit_msg = []
-        self.start_time = None
-        self.end_time = None
         self.requests = requests.session()
         self.headers = {
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
@@ -53,19 +59,17 @@ class tieba_login:
     def get_html(self, url):
         response = self.requests.get(url=url, verify=False)
         html = response.content.decode('utf-8')
-        token = re.findall('token: \'(.*?)\'', html)[0] if len(re.findall('token: \'(.*?)\'', html)) > 0 else ""
+        token = re.findall(
+            'token: \'(.*?)\'', html)[0] if len(re.findall('token: \'(.*?)\'', html)) > 0 else ""
 
         return token
 
-    def get_login_html(self):
+    def get_login_status(self):
         self.requests.headers = self.login_headers
-        response = self.requests.get(url=self.login_page, verify=False)
-        html = response.content.decode('utf-8')
-        # print(html)
+        self.requests.get(url=self.login_page, verify=False)
 
     def get_submit(self, url, seat, token, roomid, seatid, captcha):
-        day = datetime.date.today() + datetime.timedelta(days=0)  # 预约明天
-        # day = datetime.date.today()
+        day = datetime.date.today() + datetime.timedelta(days=0)  # 预约今天，修改days=1表示预约明天
         parm = {
             "roomId": roomid,
             "day": str(day),
@@ -77,26 +81,18 @@ class tieba_login:
             "type": 1
         }
         print(parm)
-        html = self.requests.post(url=url, params=parm, verify=False).content.decode('utf-8')
-        self.submit_msg.append(seat[0] + "~" + seat[1] + ':  ' + str(json.loads(html)))
+        html = self.requests.post(
+            url=url, params=parm, verify=False).content.decode('utf-8')
+        self.submit_msg.append(
+            seat[0] + "~" + seat[1] + ':  ' + str(json.loads(html)))
         print(self.submit_msg)
         print(html)
         return json.loads(html)["success"]
 
-    def get_seat(self, url, roomid, seatid):
-        parm = {
-            "roomId": roomid,
-            "day": str(datetime.date.today()),
-            "seatNum": seatid
-        }
-        html = self.requests.post(url=url, params=parm, verify=False).content.decode('utf-8')
-
-
-
-    # 登录
     def login(self, username, password):
-
-
+        username = AES_Encrypt(username)
+        password = AES_Encrypt(password)
+        print(username , password)
         parm = {
             "fid": -1,
             "uname": username,
@@ -104,7 +100,8 @@ class tieba_login:
             "refer": "http%3A%2F%2Foffice.chaoxing.com%2Ffront%2Fthird%2Fapps%2Fseat%2Fcode%3Fid%3D4219%26seatNum%3D380",
             "t": True
         }
-        jsons = self.requests.post(url=self.login_url, params=parm, verify=False)
+        jsons = self.requests.post(
+            url=self.login_url, params=parm, verify=False)
         obj = jsons.json()
         print(obj)
         if obj['status']:
@@ -117,49 +114,23 @@ class tieba_login:
         suc = False
         while flag > 1 and ~suc:
             token = self.get_html(self.url.format(roomid, seatid))
-            # captcha = self.getSlideResult(roomid, seatid)
-            suc = self.get_submit(self.submit_url, i, token, roomid, seatid,0)
+            suc = self.get_submit(self.submit_url, i, token, roomid, seatid, 0)
             flag -= 1
 
-    def submit_final(self, seat_dict, roomid, seatid):
-        self.start_time = time.time()
-        # executor1 = ThreadPoolExecutor()
-        for i in seat_dict:
-            self.submit(i, roomid, seatid)
-        self.end_time = time.time()
-
-
-def loginaction(username, password):
-    s = tieba_login()
-    s.get_login_html()
-    result = s.login(username, password)
-    return result
-
-
-def run(username, password, timeArr, roomid, seatid, email):
-    s = tieba_login()
-    s.get_login_html()
-    s.login(username, password)
-    s.requests.headers.update({'Host': 'office.chaoxing.com'})
-    s.submit_final(timeArr, roomid, seatid)
-    #time.sleep(3)
-    #s.send(email, username)
-    return None
-
-
-
-
-def tesT(username, password, roomid, seatid):
-    s = tieba_login()
-    s.get_login_html()
-    s.login(username, password)
-    s.requests.headers.update({'Host': 'office.chaoxing.com'})
-    # s.getSlideResult(roomid, seatid)
-
-def main():
-    run(stu_dect[0][0], stu_dect[0][1], stu_dect[0][2], stu_dect[0][3], stu_dect[0][4], stu_dect[0][5])
+def main(users):
+    for i in users:
+        username, password, times, roomid, seatid = i.values()
+        s = reserve()
+        s.get_login_status()
+        s.login(username, password)
+        s.requests.headers.update({'Host': 'office.chaoxing.com'})
+        s.submit(times, roomid, seatid)
 
 
 if __name__ == "__main__":
-    main()
-
+    parser = argparse.ArgumentParser(prog='Chao Xing seat auto reserve')
+    parser.add_argument('-u','--user', default="config.json")
+    args = parser.parse_args()
+    with open(args.user, "r+") as data:
+        userdata = json.load(data)["reserve"]
+    main(userdata)
