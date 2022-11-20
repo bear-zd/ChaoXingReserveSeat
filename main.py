@@ -110,12 +110,13 @@ class reserve:
             return (False, obj['msg2'])
 
     def submit(self, i, roomid, seatid):
-        flag = 3
-        suc = False
-        while flag > 1 and ~suc:
-            token = self.get_html(self.url.format(roomid, seatid))
-            suc = self.get_submit(self.submit_url, i, token, roomid, seatid, 0)
-            flag -= 1
+        for seat in seatid:
+            flag = 3
+            suc = False
+            while flag > 1 and ~suc:
+                token = self.get_html(self.url.format(roomid, seat))
+                suc = self.get_submit(self.submit_url, i, token, roomid, seat, 0)
+                flag -= 1
 
 def main(users):
     for i in users:
