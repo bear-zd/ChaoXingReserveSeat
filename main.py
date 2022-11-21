@@ -9,6 +9,7 @@ import datetime
 import json
 from urllib3.exceptions import InsecureRequestWarning
 import argparse
+import os
 
 BLOCK_SIZE = 16  # Bytes
 def pad(s): return s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * \
@@ -129,8 +130,9 @@ def main(users):
 
 
 if __name__ == "__main__":
+    config_path = os.path.join(os.path.dirname(__file__), 'config.json')
     parser = argparse.ArgumentParser(prog='Chao Xing seat auto reserve')
-    parser.add_argument('-u','--user', default="config.json")
+    parser.add_argument('-u','--user', default=config_path, help='user config file')
     args = parser.parse_args()
     with open(args.user, "r+") as data:
         userdata = json.load(data)["reserve"]
