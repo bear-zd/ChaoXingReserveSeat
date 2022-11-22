@@ -11,6 +11,9 @@ from urllib3.exceptions import InsecureRequestWarning
 import argparse
 import os
 
+SLEEPTIME = 0.2
+ENDTIME = "07:01:00"
+
 BLOCK_SIZE = 16  # Bytes
 def pad(s): return s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * \
     chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
