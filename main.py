@@ -12,7 +12,7 @@ import argparse
 import os
 
 SLEEPTIME = 0.2
-ENDTIME = "17:43:00"
+ENDTIME = "07:00:01"
 
 BLOCK_SIZE = 16  # Bytes
 def pad(s): return s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * \
