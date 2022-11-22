@@ -9,8 +9,11 @@ import datetime
 import json
 from urllib3.exceptions import InsecureRequestWarning
 import argparse
+import winsound 
+
 
 BLOCK_SIZE = 16  # Bytes
+SOUND = r"C:\Users\zidea\Desktop\Project\ChaoXingSnatchSeat\cheer.wav"
 def pad(s): return s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * \
     chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
 
@@ -27,6 +30,12 @@ def AES_Encrypt(data):
     enctext = encodestrs.decode('utf8')
     return enctext
 
+def play(suc):
+    if suc:
+        winsound.PlaySound(SOUND, winsound.SND_ASYNC)
+    else:
+        winsound.PlaySound("SystemExit",winsound.SND_ASYNC)
+    
 
 class reserve:
     def __init__(self):
@@ -80,7 +89,6 @@ class reserve:
             "captcha": "",
             "type": 1
         }
-        print(parm)
         html = self.requests.post(
             url=url, params=parm, verify=False).content.decode('utf-8')
         self.submit_msg.append(
@@ -113,10 +121,14 @@ class reserve:
         for seat in seatid:
             flag = 3
             suc = False
-            while flag > 1 and ~suc:
+            while flag > 1 and not suc:
                 token = self.get_html(self.url.format(roomid, seat))
                 suc = self.get_submit(self.submit_url, i, token, roomid, seat, 0)
+                print(suc)
                 flag -= 1
+            play(suc)
+            if suc:
+                break
 
 def main(users):
     for i in users:
@@ -135,3 +147,4 @@ if __name__ == "__main__":
     with open(args.user, "r+") as data:
         userdata = json.load(data)["reserve"]
     main(userdata)
+    time.sleep(5)

@@ -1,0 +1,1 @@
+python C:\Users\zidea\Desktop\Project\ChaoXingSnatchSeat\main.py -u C:\Users\zidea\Desktop\Project\ChaoXingSnatchSeat\config.json

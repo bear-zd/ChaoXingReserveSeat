@@ -34,3 +34,7 @@ In linux , you can just set a crontab : `crontab -e` and add the command :`0 7 *
 In windows, you can add a time task:
 
 ![](https://zideapicbed.oss-cn-shanghai.aliyuncs.com/QQ%E5%9B%BE%E7%89%8720221120213736.png)
+
+## extre
+
+using winsound to play sound when preview successful!
