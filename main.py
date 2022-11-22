@@ -11,6 +11,9 @@ from urllib3.exceptions import InsecureRequestWarning
 import argparse
 import os
 
+SLEEPTIME = 0.2
+ENDTIME = "17:43:00"
+
 BLOCK_SIZE = 16  # Bytes
 def pad(s): return s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * \
     chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
@@ -86,14 +89,13 @@ class reserve:
             url=url, params=parm, verify=False).content.decode('utf-8')
         self.submit_msg.append(
             seat[0] + "~" + seat[1] + ':  ' + str(json.loads(html)))
-        print(self.submit_msg)
-        print(html)
+        print(json.loads(html))
+       
         return json.loads(html)["success"]
 
     def login(self, username, password):
         username = AES_Encrypt(username)
         password = AES_Encrypt(password)
-        print(username , password)
         parm = {
             "fid": -1,
             "uname": username,
@@ -104,7 +106,6 @@ class reserve:
         jsons = self.requests.post(
             url=self.login_url, params=parm, verify=False)
         obj = jsons.json()
-        print(obj)
         if obj['status']:
             return (True, '')
         else:
@@ -112,21 +113,34 @@ class reserve:
 
     def submit(self, i, roomid, seatid):
         for seat in seatid:
-            flag = 3
             suc = False
-            while flag > 1 and ~suc:
+            remaining_times_for_seat = 2 # 每一个的座位尝试次数
+            while ~suc and remaining_times_for_seat > 0:
                 token = self.get_html(self.url.format(roomid, seat))
-                suc = self.get_submit(self.submit_url, i, token, roomid, seat, 0)
-                flag -= 1
+                suc = self.get_submit(self.submit_url, i,
+                                      token, roomid, seat, 0)
+                if suc:
+                    return suc
+                time.sleep(SLEEPTIME)
+                remaining_times_for_seat-=1
+        return suc    
+                
 
 def main(users):
-    for i in users:
-        username, password, times, roomid, seatid = i.values()
-        s = reserve()
-        s.get_login_status()
-        s.login(username, password)
-        s.requests.headers.update({'Host': 'office.chaoxing.com'})
-        s.submit(times, roomid, seatid)
+    current_time = time.strftime("%H:%M:%S", time.localtime())
+    suc = False
+    while current_time < ENDTIME:
+        for user in users:
+            username, password, times, roomid, seatid = user.values()
+            s = reserve()
+            s.get_login_status()
+            s.login(username, password)
+            s.requests.headers.update({'Host': 'office.chaoxing.com'})
+            suc = s.submit(times, roomid, seatid)
+            # 支持1个人抢座 多个人需要把return去了
+            if suc:
+                return
+        current_time = time.strftime("%H:%M:%S", time.localtime())
 
 
 if __name__ == "__main__":
@@ -135,5 +149,5 @@ if __name__ == "__main__":
     parser.add_argument('-u','--user', default=config_path, help='user config file')
     args = parser.parse_args()
     with open(args.user, "r+") as data:
-        userdata = json.load(data)["reserve"]
-    main(userdata)
+        usersdata = json.load(data)["reserve"]
+    main(usersdata)
