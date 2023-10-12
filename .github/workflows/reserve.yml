@@ -26,6 +26,8 @@ jobs:
           python -m pip install --upgrade pip
           sudo apt-get install build-essential libssl-dev libffi-dev  python3-dev -y
           pip install js2py cryptography requests
+      - name: env set 
+        run: |
           sudo echo '$CONFIG' > config.json
           cat config.json
 
