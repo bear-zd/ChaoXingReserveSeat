@@ -1,6 +1,6 @@
 import js2py
 def encode(roomId, day, starttime ,endtime, seatNum, token):
-    with open("encode.js","r+") as f:
+    with open("utils/encode.js","r+") as f:
         js_code = f.read()
     parm_dict = {"roomIdparm": roomId,
                  "dayparm": day,

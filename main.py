@@ -1,27 +1,5 @@
-
-from cryptography.hazmat.primitives import padding
-from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
-from cryptography.hazmat.primitives import hashes
-from cryptography.hazmat.primitives import serialization
-from cryptography.hazmat.primitives.asymmetric import padding as asym_padding
-from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
-from cryptography.hazmat.backends import default_backend
-import base64
-from pyjs import encode
-
-def AES_Encrypt(data):
-    key = b"u2oh6Vu^HWe4_AES"  # Convert to bytes
-    iv = b"u2oh6Vu^HWe4_AES"  # Convert to bytes
-    padder = padding.PKCS7(128).padder()
-    padded_data = padder.update(data.encode('utf-8')) + padder.finalize()
-    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
-    encryptor = cipher.encryptor()
-    encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
-    enctext = base64.b64encode(encrypted_data).decode('utf-8')
-    return enctext
-
+from utils import AES_Encrypt, encode
 import json
-import base64
 import requests
 import re
 import time
@@ -33,9 +11,6 @@ import os
 
 SLEEPTIME = 0.2
 ENDTIME = "07:01:00"
-
-
-
 
 class reserve:
     def __init__(self):
@@ -131,7 +106,15 @@ class reserve:
                     return suc
                 time.sleep(SLEEPTIME)
                 remaining_times_for_seat-=1
-        return suc    
+        return suc
+    
+    def roomid(self, encode):
+        url = f"https://office.chaoxing.com/data/apps/seat/room/list?cpage=1&pageSize=100&firstLevelName=&secondLevelName=&thirdLevelName=&deptIdEnc={encode}"
+        json_data = self.requests.get(url=url).content.decode('utf-8')
+        ori_data = json.loads(json_data)
+        for i in ori_data["data"]["seatRoomList"]:
+            info = f'{i["firstLevelName"]}-{i["secondLevelName"]}-{i["thirdLevelName"]} id为：{i["id"]}'
+            print(info)
                 
 
 def main(users):
@@ -160,16 +143,26 @@ def debug(users):
             if suc:
                 return
 
+def get_roomid(_):
+    username = input("请输入用户名：")
+    password = input("请输入密码：")
+    s = reserve()
+    s.get_login_status()
+    s.login(username=username, password=password)
+    s.requests.headers.update({'Host': 'office.chaoxing.com'})
+    encode = input("请输入deptldEnc：")
+    s.roomid(encode)
+    
+
+
 
 if __name__ == "__main__":
     config_path = os.path.join(os.path.dirname(__file__), 'config.json')
     parser = argparse.ArgumentParser(prog='Chao Xing seat auto reserve')
     parser.add_argument('-u','--user', default=config_path, help='user config file')
-    parser.add_argument('-d','--debug', default=False, help='for debug')
+    parser.add_argument('-m','--method', default="reserve" ,choices=["reserve", "debug", "room"], help='for debug')
     args = parser.parse_args()
+    func_dict = {"reserve": main, "debug":debug, "room": get_roomid}
     with open(args.user, "r+") as data:
         usersdata = json.load(data)["reserve"]
-    if args.debug:
-        debug(usersdata)
-    else:
-        main(usersdata)
+    func_dict[args.method](usersdata)
