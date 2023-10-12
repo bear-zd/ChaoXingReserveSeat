@@ -91,7 +91,6 @@ class reserve:
             "type":1,
             "verifyData":1,
             "enc":enc
-
         }
         print(parm)
         html = self.requests.post(
