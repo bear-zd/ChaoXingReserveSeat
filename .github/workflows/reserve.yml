@@ -27,6 +27,6 @@ jobs:
 
       - name: run script
         run: |
-          python main.py 
+          python main.py -m debug
 
 
