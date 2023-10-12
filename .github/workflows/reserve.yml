@@ -1,0 +1,32 @@
+# This is a basic workflow that is manually triggered
+
+name: auto reserve
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on:
+  schedule:
+    - cron: "59 6 * * 1,2,3,4,5" # 周一到周五每天早上6:59启动
+  workflow_dispatch:
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+  
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.1
+      - name: install dependency
+        run: |
+          python -m pip install --upgrade pip
+          pip install cryptography, py2js --yes
+          echo ${{ secrets.CONFIG }} >> config.json
+
+      - name: run script
+        run: |
+          python main.py 
+
+
