@@ -1,9 +1,29 @@
-from Crypto.Cipher import AES
+
+from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
+from cryptography.hazmat.primitives import hashes
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import padding as asym_padding
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.backends import default_backend
+import base64
+from pyjs import encode
+
+def AES_Encrypt(data):
+    key = b"u2oh6Vu^HWe4_AES"  # Convert to bytes
+    iv = b"u2oh6Vu^HWe4_AES"  # Convert to bytes
+    padder = padding.PKCS7(128).padder()
+    padded_data = padder.update(data.encode('utf-8')) + padder.finalize()
+    cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
+    encryptor = cipher.encryptor()
+    encrypted_data = encryptor.update(padded_data) + encryptor.finalize()
+    enctext = base64.b64encode(encrypted_data).decode('utf-8')
+    return enctext
+
 import json
 import base64
 import requests
 import re
-from binascii import b2a_hex, a2b_hex, b2a_base64
 import time
 import datetime
 import json
@@ -14,22 +34,7 @@ import os
 SLEEPTIME = 0.2
 ENDTIME = "07:01:00"
 
-BLOCK_SIZE = 16  # Bytes
-def pad(s): return s + (BLOCK_SIZE - len(s) % BLOCK_SIZE) * \
-    chr(BLOCK_SIZE - len(s) % BLOCK_SIZE)
 
-def unpad(s): return s[:-ord(s[len(s) - 1:])]
-
-def AES_Encrypt(data):
-    vi = "u2oh6Vu^HWe4_AES"
-    key = "u2oh6Vu^HWe4_AES"
-    data = pad(data)  # 字符串补位
-    cipher = AES.new(key.encode('utf8'), AES.MODE_CBC, vi.encode('utf8'))
-    # 加密后得到的是bytes类型的数据，使用Base64进行编码,返回byte字符串
-    encryptedbytes = cipher.encrypt(data.encode('utf8'))
-    encodestrs = base64.b64encode(encryptedbytes)  # 对byte字符串按utf-8进行解码
-    enctext = encodestrs.decode('utf8')
-    return enctext
 
 
 class reserve:
@@ -65,7 +70,7 @@ class reserve:
         html = response.content.decode('utf-8')
         token = re.findall(
             'token: \'(.*?)\'', html)[0] if len(re.findall('token: \'(.*?)\'', html)) > 0 else ""
-
+        
         return token
 
     def get_login_status(self):
@@ -74,6 +79,7 @@ class reserve:
 
     def get_submit(self, url, seat, token, roomid, seatid, captcha):
         day = datetime.date.today() + datetime.timedelta(days=0)  # 预约今天，修改days=1表示预约明天
+        enc = encode(roomid, str(day), seat[0],seat[1],seatid,token)
         parm = {
             "roomId": roomid,
             "day": str(day),
@@ -82,11 +88,14 @@ class reserve:
             "seatNum": seatid,
             "token": token,
             "captcha": "",
-            "type": 1
+            "type":1,
+            "verifyData":1,
+            "enc":enc
+
         }
         print(parm)
         html = self.requests.post(
-            url=url, params=parm, verify=False).content.decode('utf-8')
+            url=url, params=parm, verify=True).content.decode('utf-8')
         self.submit_msg.append(
             seat[0] + "~" + seat[1] + ':  ' + str(json.loads(html)))
         print(json.loads(html))
@@ -137,17 +146,31 @@ def main(users):
             s.login(username, password)
             s.requests.headers.update({'Host': 'office.chaoxing.com'})
             suc = s.submit(times, roomid, seatid)
-            # 支持1个人抢座 多个人需要把return去了
+            if suc:
+                continue
+        current_time = time.strftime("%H:%M:%S", time.localtime())
+
+def debug(users):
+        for user in users:
+            username, password, times, roomid, seatid = user.values()
+            s = reserve()
+            s.get_login_status()
+            s.login(username, password)
+            s.requests.headers.update({'Host': 'office.chaoxing.com'})
+            suc = s.submit(times, roomid, seatid)
             if suc:
                 return
-        current_time = time.strftime("%H:%M:%S", time.localtime())
 
 
 if __name__ == "__main__":
     config_path = os.path.join(os.path.dirname(__file__), 'config.json')
     parser = argparse.ArgumentParser(prog='Chao Xing seat auto reserve')
     parser.add_argument('-u','--user', default=config_path, help='user config file')
+    parser.add_argument('-d','--debug', default=False, help='for debug')
     args = parser.parse_args()
     with open(args.user, "r+") as data:
         usersdata = json.load(data)["reserve"]
-    main(usersdata)
+    if args.debug:
+        debug(usersdata)
+    else:
+        main(usersdata)
