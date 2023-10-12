@@ -1,18 +1,16 @@
-# ChaoXingSnatchSeat
-A python script in order to snatch seat from the chaoxing Library seat reserve.
+# ChaoXingServerSeat
+超星图书馆抢座脚本，在使用之前需要先在如下网站获取图书馆对应的id和座位号（需要手机端在对应网站进行抓包，下面的配置里有上大图书馆的id）
+https://office.chaoxing.com/front/third/apps/seat/code?id={}&seatNum={}
 
 ## 注意
 
-由于学习通在提交选座的部分增加了新的字段enc，现有版本的程序无法成功抢座（详细查看issue），而该值是由加密后的js函数VerifySubmit进行加密的，目前通过解密js或者暴力穷举的方法并不可行，目前可能存在的方案
-
-- 1、使用py2js，将js脚本嵌入到python中运行来模拟该函数加密，但是该函数依赖与某些外部函数而无法直接执行，需要复杂的调试来尝试解决。
-- 2、更换技术栈，使用webdriver进行开发，但是其性能可能会较差。
+请拉取最新版程序运行。新字段enc使用py2js对加密的js脚本进行模拟，同时减少了环境依赖的安装。但是相较于之前的速度会较慢（后续有机会再尝试提高性能）
 
 
 ## setting 
-before running the script , you should install a package `pip install pycrypto`
+运行脚本前先安装两个包（之前使用的pycrypto在3.11版本安装难度较高，所以修改依赖了） `pip install cryptography, py2js`
 
-and edit the config.json to make this script work.
+之后编辑config.json并填写相关信息即可
 ```json
 {
     "reserve": [
@@ -31,14 +29,14 @@ and edit the config.json to make this script work.
         ]
 }
 ```
-What you should do is just set a crontab on your server to run this script.
+只需要使用crontab运行即可
 
 ## running
 
-Use `python main.py` to run this script, add arguement `-u config.json` to point the config file posision
+通过 `python main.py` 运行脚本, 添加参数 `-u config.json` 来指明配置文件路径
 
-In linux , you can just set a crontab : `crontab -e` and add the command :`0 7 * * * python3 main.py`
+在Linux下可以使用如下方式添加crontab , 运行：`crontab -e`添加指令 :`0 7 * * * python3 main.py`
 
-In windows, you can add a time task:
+windows下使用时间任务:
 
 ![](https://zideapicbed.oss-cn-shanghai.aliyuncs.com/QQ%E5%9B%BE%E7%89%8720221120213736.png)
