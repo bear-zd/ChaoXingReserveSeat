@@ -20,11 +20,13 @@ jobs:
         with:
           python-version: 3.11
       - name: install dependency
+        env:
+          CONFIG: ${{ secrets.CONFIG }}$
         run: |
           python -m pip install --upgrade pip
           sudo apt-get install build-essential libssl-dev libffi-dev  python3-dev -y
           pip install js2py cryptography requests
-          sudo echo "$secrets_CONFIG" > config.json
+          sudo echo "$CONFIG" > config.json
           echo "$secrets_CONFIG"
           cat config.json
 
