@@ -40,3 +40,8 @@ https://office.chaoxing.com/front/third/apps/seat/code?id={}&seatNum={}
 windows下使用时间任务:
 
 ![](https://zideapicbed.oss-cn-shanghai.aliyuncs.com/QQ%E5%9B%BE%E7%89%8720221120213736.png)
+
+## ToDo
+
+- 使用github action挂程序
+- 优化js执行性能或者使用python实现
