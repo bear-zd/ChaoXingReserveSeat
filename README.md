@@ -1,6 +1,14 @@
 # ChaoXingSnatchSeat
 A python script in order to snatch seat from the chaoxing Library seat reserve.
 
+## 注意
+
+由于学习通在提交选座的部分增加了新的字段enc，现有版本的程序无法成功抢座（详细查看issue），而该值是由加密后的js函数VerifySubmit进行加密的，目前通过解密js或者暴力穷举的方法并不可行，目前可能存在的方案
+
+- 1、使用py2js，将js脚本嵌入到python中运行来模拟该函数加密，但是该函数依赖与某些外部函数而无法直接执行，需要复杂的调试来尝试解决。
+- 2、更换技术栈，使用webdriver进行开发，但是其性能可能会较差。
+
+
 ## setting 
 before running the script , you should install a package `pip install pycrypto`
 
