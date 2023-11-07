@@ -10,7 +10,7 @@
 ## 如何使用
 #### 1、安装依赖
 
-运行脚本前先安装两个包（之前使用的pycrypto在3.11版本安装难度较高，所以修改依赖了） 
+运行脚本前先安装两个包（之前使用的pycrypto在3.11版本安装难度较高，所以修改依赖了） 需要python<=3.11 (在python3.12版本下js2py会报错)
 
 ```bash
 pip install cryptography, js2py
