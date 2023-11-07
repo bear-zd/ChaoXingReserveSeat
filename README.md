@@ -13,7 +13,7 @@
 运行脚本前先安装两个包（之前使用的pycrypto在3.11版本安装难度较高，所以修改依赖了） 
 
 ```bash
-pip install cryptography, py2js 
+pip install cryptography, js2py
 ```
 
 #### 2、 获取roomid（图书馆id）和seatid（座位号）
