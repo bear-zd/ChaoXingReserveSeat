@@ -27,8 +27,8 @@ jobs:
 
       - name: run script
         env:
-          USERNAME: ${{ secrets.USERNAME }}
-          PASSWORD: ${{ secrets.PASSWORD }}
+          USERNAMES: ${{ secrets.USERNAME }}
+          PASSWORDS: ${{ secrets.PASSWORD }}
         run: |
           python main.py -m action
 

@@ -156,20 +156,22 @@ def get_roomid(_):
 def action(users):
     current_time = time.strftime("%H:%M:%S", time.localtime())
     suc = False
-    username = os.environ['USERNAME']
-    password = os.environ['PASSWORD']
-    if len(username.split(",")) != len(users):
+    usernames = os.environ['USERNAMES']
+    passwords = os.environ['PASSWORDS']
+    if len(usernames.split(",")) != len(users):
         raise Exception("user number should match the number of config")
-    # while current_time < ENDTIME:
-    for index, user in enumerate(users):
-        _, _, times, roomid, seatid = user.values()
-        s = reserve()
-        s.get_login_status()
-        s.login(username.split(',')[index], password.split(',')[index])
-        s.requests.headers.update({'Host': 'office.chaoxing.com'})
-        suc = s.submit(times, roomid, seatid)
-        if suc:
-            continue
+    while current_time < ENDTIME:
+        for index, user in enumerate(users):
+            _, _, times, roomid, seatid = user.values()
+            s = reserve()
+            s.get_login_status()
+            username, password = usernames.split(',')[index], passwords.split(',')[index]
+            print(username, password)
+            s.login(username, password )
+            s.requests.headers.update({'Host': 'office.chaoxing.com'})
+            suc = s.submit(times, roomid, seatid)
+            if suc:
+                continue
     current_time = time.strftime("%H:%M:%S", time.localtime())
 
 if __name__ == "__main__":
