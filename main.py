@@ -156,6 +156,7 @@ def get_roomid(_):
 def action(users):
     current_time = time.strftime("%H:%M:%S", time.localtime())
     suc = False
+    print(os.environ)
     username = os.environ['USERNAME']
     password = os.environ['PASSWORD']
     if len(username.split(",")) != len(users):
