@@ -34,6 +34,10 @@ pip install cryptography, js2py
 
 运行`python main.py -m debug`可以立即运行查看配置是否正确。
 
+关于运行的方式，现在提供了多种运行方式：
+
+- 本地部署方式：
+
 在Linux下可以使用如下方式添加crontab , 运行：`crontab -e`添加指令 :`0 7 * * * python3 main.py`
 
 windows下使用时间任务:
@@ -62,6 +66,22 @@ windows下使用时间任务:
 }
 ```
 只需要使用crontab运行即可
+
+- github actions部署方式（目前还在验证阶段）：
+
+  这种方式可以不需要在本地部署环境，只需要把fork该仓库并修改配置文件即可。
+
+1.**fork该仓库**
+
+2.**修改config.json**：这个仿照之前的方式进行修改即可，但是注意，username和password请留空或者随便填以防止泄漏个人账号密码。
+
+3.**配置账号密码**：在settings->secrets and variables->Repository secrets 创建两个secret keys。名称分别为USERNAME，PASSWORD，填写自己的账号和密码即可。（如果有多个用户，请使用,(英文逗号)隔开，如果密码中有逗号可能会出现问题）。
+
+```
+xxxxxxx,xxxxxxx
+```
+
+4.**运行action**：在action -> auto_reserve -> run workflows 选择main分支即可。
 
 ## 存在的问题
 
