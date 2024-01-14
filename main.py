@@ -153,16 +153,32 @@ def get_roomid(_):
     encode = input("请输入deptldEnc：")
     s.roomid(encode)
     
-
-
+def action(users):
+    current_time = time.strftime("%H:%M:%S", time.localtime())
+    suc = False
+    username = os.environ['username']
+    password = os.environ['password']
+    if len(username.split(",")) != len(users):
+        raise Exception("user number should match the number of config")
+    while current_time < ENDTIME:
+        for index, user in enumerate(users):
+            _, _, times, roomid, seatid = user.values()
+            s = reserve()
+            s.get_login_status()
+            s.login(username.split(',')[index], password.split(',')[index])
+            s.requests.headers.update({'Host': 'office.chaoxing.com'})
+            suc = s.submit(times, roomid, seatid)
+            if suc:
+                continue
+        current_time = time.strftime("%H:%M:%S", time.localtime())
 
 if __name__ == "__main__":
     config_path = os.path.join(os.path.dirname(__file__), 'config.json')
     parser = argparse.ArgumentParser(prog='Chao Xing seat auto reserve')
     parser.add_argument('-u','--user', default=config_path, help='user config file')
-    parser.add_argument('-m','--method', default="reserve" ,choices=["reserve", "debug", "room"], help='for debug')
+    parser.add_argument('-m','--method', default="reserve" ,choices=["reserve", "debug", "room", "action"], help='for debug')
     args = parser.parse_args()
-    func_dict = {"reserve": main, "debug":debug, "room": get_roomid}
+    func_dict = {"reserve": main, "debug":debug, "room": get_roomid, "action": action}
     with open(args.user, "r+") as data:
         usersdata = json.load(data)["reserve"]
     func_dict[args.method](usersdata)
