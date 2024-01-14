@@ -156,8 +156,8 @@ def get_roomid(_):
 def action(users):
     current_time = time.strftime("%H:%M:%S", time.localtime())
     suc = False
-    username = os.environ['username']
-    password = os.environ['password']
+    username = os.environ['USERNAME']
+    password = os.environ['PASSWORD']
     if len(username.split(",")) != len(users):
         raise Exception("user number should match the number of config")
     while current_time < ENDTIME:
