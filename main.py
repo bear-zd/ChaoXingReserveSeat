@@ -154,13 +154,13 @@ def get_roomid(_):
     s.roomid(encode)
     
 def action(users):
-    current_time = time.strftime("%H:%M:%S", time.localtime())
+    start_time = time.time()
     suc = False
     usernames = os.environ['USERNAMES']
     passwords = os.environ['PASSWORDS']
     if len(usernames.split(",")) != len(users):
         raise Exception("user number should match the number of config")
-    while current_time < ENDTIME:
+    while time.time() - start_time < 2*60:
         for index, user in enumerate(users):
             _, _, times, roomid, seatid = user.values()
             s = reserve()
@@ -172,7 +172,7 @@ def action(users):
             suc = s.submit(times, roomid, seatid)
             if suc:
                 continue
-    current_time = time.strftime("%H:%M:%S", time.localtime())
+
 
 if __name__ == "__main__":
     config_path = os.path.join(os.path.dirname(__file__), 'config.json')
