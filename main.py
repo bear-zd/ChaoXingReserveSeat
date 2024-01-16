@@ -154,23 +154,23 @@ def get_roomid(_):
     s.roomid(encode)
     
 def action(users):
-    start_time = time.time()
+    current_time = time.strftime("%H:%M:%S", time.localtime(time.time()+8*3600)) # UTC+8
     suc = False
     usernames = os.environ['USERNAMES']
     passwords = os.environ['PASSWORDS']
     if len(usernames.split(",")) != len(users):
         raise Exception("user number should match the number of config")
-    while time.time() - start_time < 2*60:
+    while current_time < ENDTIME:
         for index, user in enumerate(users):
             _, _, times, roomid, seatid = user.values()
             s = reserve()
             s.get_login_status()
             username, password = usernames.split(',')[index], passwords.split(',')[index]
-            print(username, password)
             s.login(username, password )
             s.requests.headers.update({'Host': 'office.chaoxing.com'})
             suc = s.submit(times, roomid, seatid)
             if suc:
+                print("successfully reserved!")
                 continue
 
 
