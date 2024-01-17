@@ -117,12 +117,19 @@ class reserve:
             print(info)
                 
 
-def main(users):
+def main(users, action=False):
     current_time = time.strftime("%H:%M:%S", time.localtime())
     suc = False
+    if action:
+        usernames = os.environ['USERNAMES']
+        passwords = os.environ['PASSWORDS']
+    if len(usernames.split(",")) != len(users):
+        raise Exception("user number should match the number of config")
     while current_time < ENDTIME:
-        for user in users:
+        for index, user in enumerate(users):
             username, password, times, roomid, seatid = user.values()
+            if action:
+                username ,password = usernames.split(',')[index], passwords.split(',')[index]
             s = reserve()
             s.get_login_status()
             s.login(username, password)
@@ -132,9 +139,15 @@ def main(users):
                 continue
         current_time = time.strftime("%H:%M:%S", time.localtime())
 
-def debug(users):
-    for user in users:
+def debug(users, action):
+    suc = False
+    if action:
+        usernames = os.environ['USERNAMES']
+        passwords = os.environ['PASSWORDS']
+    for index, user in enumerate(users):
         username, password, times, roomid, seatid = user.values()
+        if action:
+            username ,password = usernames.split(',')[index], passwords.split(',')[index]
         s = reserve()
         s.get_login_status()
         s.login(username, password)
@@ -143,7 +156,7 @@ def debug(users):
         if suc:
             return
 
-def get_roomid(_):
+def get_roomid(**kwargs):
     username = input("请输入用户名：")
     password = input("请输入密码：")
     s = reserve()
@@ -154,7 +167,7 @@ def get_roomid(_):
     s.roomid(encode)
     
 def action(users):
-    current_time = time.strftime("%H:%M:%S", time.localtime(time.time()+8*3600)) # UTC+8
+    current_time = time.strftime("%H:%M:%S", time.localtime())
     suc = False
     usernames = os.environ['USERNAMES']
     passwords = os.environ['PASSWORDS']
@@ -166,21 +179,22 @@ def action(users):
             s = reserve()
             s.get_login_status()
             username, password = usernames.split(',')[index], passwords.split(',')[index]
+            print(username, password)
             s.login(username, password )
             s.requests.headers.update({'Host': 'office.chaoxing.com'})
             suc = s.submit(times, roomid, seatid)
             if suc:
-                print("successfully reserved!")
                 continue
-
+    current_time = time.strftime("%H:%M:%S", time.localtime())
 
 if __name__ == "__main__":
     config_path = os.path.join(os.path.dirname(__file__), 'config.json')
     parser = argparse.ArgumentParser(prog='Chao Xing seat auto reserve')
     parser.add_argument('-u','--user', default=config_path, help='user config file')
-    parser.add_argument('-m','--method', default="reserve" ,choices=["reserve", "debug", "room", "action"], help='for debug')
+    parser.add_argument('-m','--method', default="reserve" ,choices=["reserve", "debug", "room"], help='for debug')
+    parser.add_argument('-a','--action', help='use --action to enable in github action')
     args = parser.parse_args()
-    func_dict = {"reserve": main, "debug":debug, "room": get_roomid, "action": action}
+    func_dict = {"reserve": main, "debug":debug, "room": get_roomid}
     with open(args.user, "r+") as data:
         usersdata = json.load(data)["reserve"]
-    func_dict[args.method](usersdata)
+    func_dict[args.method](usersdata, args.action)
