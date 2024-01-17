@@ -192,7 +192,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog='Chao Xing seat auto reserve')
     parser.add_argument('-u','--user', default=config_path, help='user config file')
     parser.add_argument('-m','--method', default="reserve" ,choices=["reserve", "debug", "room"], help='for debug')
-    parser.add_argument('-a','--action', help='use --action to enable in github action')
+    parser.add_argument('-a','--action', action="store_true",help='use --action to enable in github action')
     args = parser.parse_args()
     func_dict = {"reserve": main, "debug":debug, "room": get_roomid}
     with open(args.user, "r+") as data:
