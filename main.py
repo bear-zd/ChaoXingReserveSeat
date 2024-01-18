@@ -139,6 +139,7 @@ def login_and_reserve(users, usernames, passwords, action, success_list=None):
 
 def main(users, action=False):
     current_time = get_current_time(action)
+    print(f"start time {current_time}")
     attempt_times = 0
     try:
         usernames = os.environ['USERNAMES'] if action else ""
