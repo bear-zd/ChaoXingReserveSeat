@@ -160,31 +160,6 @@ def main(users, action=False):
             print(f"reserved successfully!")
             return
 
-def main(users, action=False):
-    current_time = time.strftime("%H:%M:%S", time.localtime(time.time()+8*3600)) if action else time.strftime("%H:%M:%S", time.localtime())
-    attempt_times = 0
-    
-    if action:
-        usernames = os.environ['USERNAMES']
-        passwords = os.environ['PASSWORDS']
-    if len(usernames.split(",")) != len(users):
-        raise Exception("user number should match the number of config")
-    while current_time < ENDTIME:
-        attempt_times += 1
-        print(f"attempt time {attempt_times} , time now {current_time}")
-        for index, user in enumerate(users):
-            username, password, times, roomid, seatid = user.values()
-            if action:
-                username ,password = usernames.split(',')[index], passwords.split(',')[index]
-            s = reserve()
-            s.get_login_status()
-            s.login(username, password)
-            s.requests.headers.update({'Host': 'office.chaoxing.com'})
-            suc = s.submit(times, roomid, seatid)
-            if suc:
-                continue
-        current_time = time.strftime("%H:%M:%S", time.localtime(time.time()+8*3600)) if action else time.strftime("%H:%M:%S", time.localtime())
-
 def debug(users, action):
     suc = False
     if action:
