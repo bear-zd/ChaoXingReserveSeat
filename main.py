@@ -116,16 +116,61 @@ class reserve:
             info = f'{i["firstLevelName"]}-{i["secondLevelName"]}-{i["thirdLevelName"]} id为：{i["id"]}'
             print(info)
                 
+def get_current_time(action):
+    offset = 8*3600 if action else 0
+    return time.strftime("%H:%M:%S", time.localtime(time.time() + offset))
+
+def login_and_reserve(users, usernames, passwords, action, success_list=None):
+    if len(usernames.split(",")) != len(users):
+        raise Exception("user number should match the number of config")
+    if success_list is None:
+        success_list = [False] * len(users)
+    for index, user in enumerate(users):
+        username, password, times, roomid, seatid = user.values()
+        if action:
+            username, password = usernames.split(',')[index], passwords.split(',')[index]
+        if not success_list[index]: 
+            s = reserve()
+            s.get_login_status()
+            s.login(username, password)
+            s.requests.headers.update({'Host': 'office.chaoxing.com'})
+            suc = s.submit(times, roomid, seatid)
+            success_list[index] = suc
 
 def main(users, action=False):
-    current_time = time.strftime("%H:%M:%S", time.localtime())
-    suc = False
+    current_time = get_current_time(action)
+    attempt_times = 0
+    try:
+        usernames = os.environ['USERNAMES'] if action else ""
+        passwords = os.environ['PASSWORDS'] if action else ""
+    except KeyError:
+        print("github secret keys not config correctly.")
+        return 
+    success_list = None
+    while current_time < ENDTIME:
+        attempt_times += 1
+        try:
+            success_list = login_and_reserve(users, usernames, passwords, action, success_list)
+        except Exception as e:
+            print(f"An error occurred: {e}")
+        print(f"attempt time {attempt_times}, time now {current_time}, success list {success_list}")
+        current_time = get_current_time(action)
+        if sum(success_list) == len(users):
+            print(f"reserved successfully!")
+            return
+
+def main(users, action=False):
+    current_time = time.strftime("%H:%M:%S", time.localtime(time.time()+8*3600)) if action else time.strftime("%H:%M:%S", time.localtime())
+    attempt_times = 0
+    
     if action:
         usernames = os.environ['USERNAMES']
         passwords = os.environ['PASSWORDS']
     if len(usernames.split(",")) != len(users):
         raise Exception("user number should match the number of config")
     while current_time < ENDTIME:
+        attempt_times += 1
+        print(f"attempt time {attempt_times} , time now {current_time}")
         for index, user in enumerate(users):
             username, password, times, roomid, seatid = user.values()
             if action:
@@ -137,7 +182,7 @@ def main(users, action=False):
             suc = s.submit(times, roomid, seatid)
             if suc:
                 continue
-        current_time = time.strftime("%H:%M:%S", time.localtime())
+        current_time = time.strftime("%H:%M:%S", time.localtime(time.time()+8*3600)) if action else time.strftime("%H:%M:%S", time.localtime())
 
 def debug(users, action):
     suc = False
