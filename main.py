@@ -136,6 +136,7 @@ def login_and_reserve(users, usernames, passwords, action, success_list=None):
             s.requests.headers.update({'Host': 'office.chaoxing.com'})
             suc = s.submit(times, roomid, seatid)
             success_list[index] = suc
+    return success_list
 
 def main(users, action=False):
     current_time = get_current_time(action)
@@ -186,27 +187,7 @@ def get_roomid(**kwargs):
     s.requests.headers.update({'Host': 'office.chaoxing.com'})
     encode = input("请输入deptldEnc：")
     s.roomid(encode)
-    
-def action(users):
-    current_time = time.strftime("%H:%M:%S", time.localtime())
-    suc = False
-    usernames = os.environ['USERNAMES']
-    passwords = os.environ['PASSWORDS']
-    if len(usernames.split(",")) != len(users):
-        raise Exception("user number should match the number of config")
-    while current_time < ENDTIME:
-        for index, user in enumerate(users):
-            _, _, times, roomid, seatid = user.values()
-            s = reserve()
-            s.get_login_status()
-            username, password = usernames.split(',')[index], passwords.split(',')[index]
-            print(username, password)
-            s.login(username, password )
-            s.requests.headers.update({'Host': 'office.chaoxing.com'})
-            suc = s.submit(times, roomid, seatid)
-            if suc:
-                continue
-    current_time = time.strftime("%H:%M:%S", time.localtime())
+
 
 if __name__ == "__main__":
     config_path = os.path.join(os.path.dirname(__file__), 'config.json')
