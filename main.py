@@ -52,8 +52,10 @@ class reserve:
         self.requests.headers = self.login_headers
         self.requests.get(url=self.login_page, verify=False)
 
-    def get_submit(self, url, seat, token, roomid, seatid, captcha):
+    def get_submit(self, url, seat, token, roomid, seatid, captcha, action=False):
         day = datetime.date.today() + datetime.timedelta(days=0)  # 预约今天，修改days=1表示预约明天
+        if action:
+            day = datetime.date.today() + datetime.timedelta(days=1)  # 预约今天，修改days=1表示预约明天
         enc = encode(roomid, str(day), seat[0],seat[1],seatid,token)
         parm = {
             "roomId": roomid,
@@ -94,14 +96,14 @@ class reserve:
         else:
             return (False, obj['msg2'])
 
-    def submit(self, i, roomid, seatid):
+    def submit(self, i, roomid, seatid, action):
         for seat in seatid:
             suc = False
             remaining_times_for_seat = 2 # 每一个的座位尝试次数
             while ~suc and remaining_times_for_seat > 0:
                 token = self.get_html(self.url.format(roomid, seat))
                 suc = self.get_submit(self.submit_url, i,
-                                      token, roomid, seat, 0)
+                                      token, roomid, seat, 0, action)
                 if suc:
                     return suc
                 time.sleep(SLEEPTIME)
@@ -134,7 +136,7 @@ def login_and_reserve(users, usernames, passwords, action, success_list=None):
             s.get_login_status()
             s.login(username, password)
             s.requests.headers.update({'Host': 'office.chaoxing.com'})
-            suc = s.submit(times, roomid, seatid)
+            suc = s.submit(times, roomid, seatid, action)
             success_list[index] = suc
     return success_list
 
