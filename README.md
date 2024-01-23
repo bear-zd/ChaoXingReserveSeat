@@ -8,6 +8,9 @@
 目前版本不支持滑块验证（
 
 ## 如何使用
+
+### 本地部署方式
+
 #### 1、安装依赖
 
 运行脚本前先安装两个包（之前使用的pycrypto在3.11版本安装难度较高，所以修改依赖了） 需要python<=3.11 (在python3.12版本下js2py会报错)
@@ -36,16 +39,34 @@ pip install cryptography, js2py
 
 关于运行的方式，现在提供了多种运行方式：
 
-- 本地部署方式：
+- Linux环境下：
 
 在Linux下可以使用如下方式添加crontab , 运行：`crontab -e`添加指令 :`0 7 * * * python3 main.py`
+
+- windows环境下：
 
 windows下使用时间任务:
 
 ![](https://zideapicbed.oss-cn-shanghai.aliyuncs.com/QQ%E5%9B%BE%E7%89%8720221120213736.png)
 
+### github actions部署方式（目前应该没有问题了）：
 
-## setting 
+  这种方式可以不需要在本地部署环境，只需要把fork该仓库并修改配置文件即可。
+
+1.**fork该仓库**
+
+2.**修改config.json**：这个仿照之前的方式进行修改即可，但是注意，username和password请留空或者随便填以防止泄漏个人账号密码。（具体的需要填写在自己repo的settings中）。时间什么也是需要修改（修改到仓库中）不要忘记。
+
+3.**配置账号密码**：在settings->secrets and variables->Repository secrets 创建两个secret keys。名称分别为USERNAME，PASSWORD，填写自己的账号和密码即可。（如果有多个用户，请使用,(英文逗号)隔开，如果密码中有逗号可能会出现问题）。
+
+```
+xxxxxxx,xxxxxxx
+```
+
+4.**运行action**：在action -> auto_reserve -> run workflows 选择main分支即可。
+
+
+## config配置
 之后编辑config.json并填写相关信息即可
 ```json
 {
@@ -65,23 +86,8 @@ windows下使用时间任务:
         ]
 }
 ```
-只需要使用crontab运行即可
+参考前面的运行方式即可。
 
-- github actions部署方式（目前还在验证阶段）：
-
-  这种方式可以不需要在本地部署环境，只需要把fork该仓库并修改配置文件即可。
-
-1.**fork该仓库**
-
-2.**修改config.json**：这个仿照之前的方式进行修改即可，但是注意，username和password请留空或者随便填以防止泄漏个人账号密码。
-
-3.**配置账号密码**：在settings->secrets and variables->Repository secrets 创建两个secret keys。名称分别为USERNAME，PASSWORD，填写自己的账号和密码即可。（如果有多个用户，请使用,(英文逗号)隔开，如果密码中有逗号可能会出现问题）。
-
-```
-xxxxxxx,xxxxxxx
-```
-
-4.**运行action**：在action -> auto_reserve -> run workflows 选择main分支即可。
 
 ## 存在的问题
 
