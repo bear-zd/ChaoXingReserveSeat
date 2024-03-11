@@ -97,7 +97,13 @@ xxxxxxx,xxxxxxx
 - {当前人数过多，请等待5分钟后尝试}。这种是请求方式错误或者请求键值错误导致的，通常是由于学习通更新了预约导致的
 - 以字典格式输出的其他错误，仔细查看用户名密码，roomid和seatid是否填写正确。如果问题不能解决请在github上提issue
 
+### 无法预约情况debug方式
+> 1、电脑端访问："https://passport2.chaoxing.com/mlogin?loginType=1&newversion=true&fid=" 使用自己的用户名密码登录
+> 2、电脑端访问：”https://office.chaoxing.com/front/third/apps/seat/code?id={图书馆id}&seatNum={座位id}“查看是否显示时间表
+> 3、尝试预约看看是否会出现验证方式
+
+目前无法实现滑块验证以及跨单位座位预约。
+
 ## ToDo
 
-- 使用github action挂程序
-- 优化js执行性能或者使用python实现
+- 滑块验证（有点不想搞，有需求的可以使用这个：https://github.com/runoob09/xxt_library_seat）
