@@ -176,7 +176,7 @@ def debug(users, action):
         s.get_login_status()
         s.login(username, password)
         s.requests.headers.update({'Host': 'office.chaoxing.com'})
-        suc = s.submit(times, roomid, seatid)
+        suc = s.submit(times, roomid, seatid, action)
         if suc:
             return
 
