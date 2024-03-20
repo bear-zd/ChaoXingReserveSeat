@@ -3,9 +3,9 @@
 
 ## 注意
 
-请拉取最新版程序运行。新字段enc使用py2js对加密的js脚本进行模拟，同时减少了环境依赖的安装。但是相较于之前的速度会较慢（后续有机会再尝试提高性能）
+使用python消除了对js的依赖，请拉取最新版程序运行。
 
-目前版本不支持滑块验证（
+该版本试验性支持滑块验证（因为没有账号进行测试，这里感谢：[runoob09学习通预约](https://github.com/runoob09/xxt_library_seat) 的代码），如果有滑块验证，请参考下面的**高级设置**部分
 
 ## 如何使用
 
@@ -13,10 +13,16 @@
 
 #### 1、安装依赖
 
-运行脚本前先安装两个包（之前使用的pycrypto在3.11版本安装难度较高，所以修改依赖了） 需要python<=3.11 (在python3.12版本下js2py会报错)
+运行脚本前先安装一个包
 
 ```bash
-pip install cryptography, js2py
+pip install cryptography
+```
+
+如果有滑块验证，则需要额外安装numpy和opencv-python
+
+```bash
+pip install cryptography, opencv-python
 ```
 
 #### 2、 获取roomid（图书馆id）和seatid（座位号）
@@ -67,7 +73,7 @@ xxxxxxx,xxxxxxx
 
 
 ## config配置
-之后编辑config.json并填写相关信息即可
+之后编辑config.json并填写座位预约相关信息即可
 ```json
 {
     "reserve": [
@@ -89,6 +95,19 @@ xxxxxxx,xxxxxxx
 参考前面的运行方式即可。
 
 
+## 高级设置
+
+在main.py中有四个参数可以选择
+
+```python
+SLEEPTIME = 0.2 # 每次抢座的间隔
+ENDTIME = "07:01:00" # 根据学校的开始预约座位时间+1min即可
+
+ENABLE_SLIDER = False # 是否有滑块验证，设置为True开启滑块验证
+MAX_ATTEMPT = 4 # 最大尝试次数
+```
+可以直接进行修改，但是不建议把**SLEEPTIME**设置太小。
+
 ## 存在的问题
 
 目前日志输出不是很人性化，如果出现了以下问题请提issue：
@@ -96,14 +115,12 @@ xxxxxxx,xxxxxxx
 - 出现了代码逻辑的错误
 - {当前人数过多，请等待5分钟后尝试}。这种是请求方式错误或者请求键值错误导致的，通常是由于学习通更新了预约导致的
 - 以字典格式输出的其他错误，仔细查看用户名密码，roomid和seatid是否填写正确。如果问题不能解决请在github上提issue
+- 滑块验证目前无法进行测试
 
 ### 无法预约情况debug方式
 > 1、电脑端访问："https://passport2.chaoxing.com/mlogin?loginType=1&newversion=true&fid=" 使用自己的用户名密码登录
 > 2、电脑端访问：”https://office.chaoxing.com/front/third/apps/seat/code?id={图书馆id}&seatNum={座位id}“查看是否显示时间表
 > 3、尝试预约看看是否会出现验证方式
 
-目前无法实现滑块验证以及跨单位座位预约。
+目前无法实现跨单位座位预约。
 
-## ToDo
-
-- 滑块验证（有点不想搞，有需求的可以使用这个：https://github.com/runoob09/xxt_library_seat）
