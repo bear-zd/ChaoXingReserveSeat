@@ -5,7 +5,7 @@
 
 请拉取最新版程序运行。新字段enc使用py2js对加密的js脚本进行模拟，同时减少了环境依赖的安装。但是相较于之前的速度会较慢（后续有机会再尝试提高性能）
 
-目前版本不支持滑块验证（
+main分支不支持滑块验证（如果有滑块验证需求，请拉取rebuild分支的代码，但是不保证能够完整运行，如遇bug请在滑块issue [滑块issue](https://github.com/bear-zd/ChaoXingReserveSeat/issues/4) 中提出）
 
 ## 如何使用
 
@@ -102,8 +102,6 @@ xxxxxxx,xxxxxxx
 > 2、电脑端访问：”https://office.chaoxing.com/front/third/apps/seat/code?id={图书馆id}&seatNum={座位id}“查看是否显示时间表
 > 3、尝试预约看看是否会出现验证方式
 
-目前无法实现滑块验证以及跨单位座位预约。
+目前无法实现跨单位座位预约。
 
-## ToDo
 
-- 滑块验证（有点不想搞，有需求的可以使用这个：https://github.com/runoob09/xxt_library_seat）
