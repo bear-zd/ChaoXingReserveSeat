@@ -97,7 +97,7 @@ class reserve:
             suc = False
             while ~suc and self.max_attempt > 0:
                 token = self._get_token(self.url.format(roomid, seat))
-                captcha = self.resolve_captcha(token) if self.enable_slider else "" 
+                captcha = self.resolve_captcha(roomid, token, action) if self.enable_slider else "" 
                 suc = self.get_submit(self.submit_url, times,
                                       token, roomid, seat, captcha, action)
                 if suc:
@@ -155,7 +155,7 @@ class reserve:
             "_": timestamp
         }
         response = self.requests.get(url=url, params=params)
-        content = response.text()
+        content = response.text
         data = content.replace("jQuery33105878581853212221_1698141785783(",
                             ")").replace(")", "")
         data = json.loads(data)

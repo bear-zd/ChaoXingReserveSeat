@@ -11,7 +11,7 @@ get_current_time = lambda action: time.strftime("%H:%M:%S", time.localtime(time.
 SLEEPTIME = 0.2 # 每次抢座的间隔
 ENDTIME = "07:01:00" # 根据学校的预约座位时间+1min即可
 
-ENABLE_SLIDER = False # 是否有滑块验证
+ENABLE_SLIDER = True # 是否有滑块验证
 MAX_ATTEMPT = 4 # 最大尝试次数
 
                 
