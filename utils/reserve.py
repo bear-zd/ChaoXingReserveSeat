@@ -1,5 +1,4 @@
-
-from utils import AES_Encrypt, enc, captcha_key_and_token
+from utils import AES_Encrypt, enc, generate_captcha_key
 import json
 import requests
 import re
@@ -142,7 +141,7 @@ class reserve:
         url = "https://captcha.chaoxing.com/captcha/get/verification/image"
         day = datetime.date.today() + datetime.timedelta(days=0) if not action else datetime.date.today() + datetime.timedelta(days=1)  # 预约今天，修改days=1表示预约明天
         timestamp = int(time.time() * 1000)
-        capture_key, token = captcha_key_and_token(timestamp)
+        capture_key, token = generate_captcha_key(timestamp)
         referer = f"https://reserve.chaoxing.com/front/third/apps/seat/select?id={roomid}&day={str(day)}&backLevel=2&pageToken={page_token}"
 
         params = {

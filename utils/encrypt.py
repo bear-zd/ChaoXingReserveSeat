@@ -29,24 +29,22 @@ def enc(submit_info):
     seq = ''.join(needed)
     return md5(seq.encode("utf-8")).hexdigest()
 
-def captcha_key_and_token(_0x353d93: int):
-    def generate_random_chars():
-        _0xa5adc8 = []
-        _0x5cdcca = '0123456789abcdef'
-        _0xccd6e7 = 0x0
-        while _0xccd6e7 < 0x24:
-            _0xa5adc8.append(_0x5cdcca[random.randint(0, 0xf)])
-            _0xccd6e7 += 1
-        _0xa5adc8[0xe] = '4'
-        _0xa5adc8[0x13] = _0x5cdcca[int(_0xa5adc8[0x13], 16) & 0x3 | 0x8]
-        _0xa5adc8[0x8] = _0xa5adc8[0xd] = _0xa5adc8[0x12] = _0xa5adc8[0x17] = '-'
-        return ''.join(_0xa5adc8)
 
-    _0x4471c4 = md5((str(_0x353d93) + generate_random_chars()).encode("utf-8")).hexdigest()
-    _0x353d93 = md5(
-        (str(_0x353d93) + "42sxgHoTPTKbt0uZxPJ7ssOvtXr3ZgZ1" + "slide" + _0x4471c4).encode("utf-8")
-    ).hexdigest() + ":" + str(int(_0x353d93) + 0x493e0)
-    return [_0x4471c4, _0x353d93]
+
+def generate_captcha_key(timestamp: int):
+    def generate_random_chars():
+        hex_chars = '0123456789abcdef'
+        random_chars = [random.choice(hex_chars) for _ in range(24)]
+        random_chars[14] = '4' 
+        random_chars[19] = hex_chars[int(random_chars[19], 16) & 0x3 | 0x8] 
+        for pos in [8, 13, 18, 23]:
+            random_chars.insert(pos, '-')
+        return ''.join(random_chars)
+    encoded_timestamp = md5((str(timestamp) + generate_random_chars()).encode("utf-8")).hexdigest()
+    timestamp = md5(
+        (str(timestamp) + "42sxgHoTPTKbt0uZxPJ7ssOvtXr3ZgZ1" + "slide" + encoded_timestamp).encode("utf-8")
+    ).hexdigest() + ":" + str(int(timestamp) + 0x493e0)
+    return [encoded_timestamp, timestamp]
 
 
 if __name__ == "__main__":

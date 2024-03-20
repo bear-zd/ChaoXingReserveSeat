@@ -4,7 +4,9 @@ import time
 import argparse
 import os
 
-from utils import reserve, get_current_time
+from utils import reserve
+get_current_time = lambda action: time.strftime("%H:%M:%S", time.localtime(time.time() + 8*3600)) if action else time.strftime("%H:%M:%S", time.localtime(time.time()))
+
 
 SLEEPTIME = 0.2 # 每次抢座的间隔
 ENDTIME = "07:01:00" # 根据学校的预约座位时间+1min即可
