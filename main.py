@@ -6,7 +6,6 @@ import os
 
 from utils import reserve
 get_current_time = lambda action: time.strftime("%H:%M:%S", time.localtime(time.time() + 8*3600)) if action else time.strftime("%H:%M:%S", time.localtime(time.time()))
-get_current_dayofweek = lambda action: time.strftime("%A", time.localtime(time.time() + 8*3600)) if action else time.strftime("%A", time.localtime(time.time()))
 
 
 SLEEPTIME = 0.2 # 每次抢座的间隔
@@ -22,13 +21,10 @@ def login_and_reserve(users, usernames, passwords, action, success_list=None):
         raise Exception("user number should match the number of config")
     if success_list is None:
         success_list = [False] * len(users)
-    current_dayofweek = get_current_dayofweek(action)
     for index, user in enumerate(users):
-        username, password, times, roomid, seatid, dayofweek = user.values()
+        username, password, times, roomid, seatid = user.values()
         if action:
             username, password = usernames.split(',')[index], passwords.split(',')[index]
-        if(dayofweek != current_dayofweek):
-            continue
         if not success_list[index]: 
             s = reserve(sleep_time=SLEEPTIME, enable_slider=ENABLE_SLIDER)
             s.get_login_status()
@@ -50,8 +46,6 @@ def main(users, action=False):
         print("github secret keys not config correctly.")
         return 
     success_list = None
-    current_dayofweek = get_current_dayofweek(action)
-    today_reservation_num = sum(1 for d in users if d.get('dayofweek') == current_dayofweek)
     while current_time < ENDTIME:
         attempt_times += 1
         try:
@@ -60,7 +54,7 @@ def main(users, action=False):
             print(f"An error occurred: {e}")
         print(f"attempt time {attempt_times}, time now {current_time}, success list {success_list}")
         current_time = get_current_time(action)
-        if sum(success_list) == today_reservation_num:
+        if sum(success_list) == len(users):
             print(f"reserved successfully!")
             return
 
@@ -69,13 +63,10 @@ def debug(users, action):
     if action:
         usernames = os.environ['USERNAMES']
         passwords = os.environ['PASSWORDS']
-    current_dayofweek = get_current_dayofweek(action)
     for index, user in enumerate(users):
-        username, password, times, roomid, seatid, dayofweek = user.values()
+        username, password, times, roomid, seatid = user.values()
         if action:
             username ,password = usernames.split(',')[index], passwords.split(',')[index]
-        if(dayofweek != current_dayofweek):
-            continue
         s = reserve(sleep_time=SLEEPTIME, enable_slider=ENABLE_SLIDER)
         s.get_login_status()
         s.login(username, password)
