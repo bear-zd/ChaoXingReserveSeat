@@ -81,15 +81,16 @@ xxxxxxx,xxxxxxx
         "password": "XXXXXXXX",
         "time": ["08:00","22:00"], // 预约的起始时间
         "roomid":"2609", //2609:四楼外圈,5483:四楼内圈,2610:五楼外圈,5484:五楼内圈
-        "seatid":"002" // 注意要用0补全至3位数，例如6号座位应该填006
+        "seatid":"002", // 注意要用0补全至3位数，例如6号座位应该填006
+        "daysofweek": ["Monday" , "Tuesday", "Wednesday", "Thursday", "Friday"]
         },
-        {"username": "xxxxxxx",
-        "password": "xxxxxxxxxx",
-        "time": ["21:00","22:00"],
-        "roomid":"2609",
-        "seatid":"002"
-        }
-        ]
+        {"username": "xxxxxxxxxx",
+        "password": "xxxxxxxxx",
+        "time": ["20:00","21:00"],
+        "roomid":"5483",
+        "seatid":["056"],
+        "daysofweek": ["Saturday" , "Sunday"]
+    }
 }
 ```
 参考前面的运行方式即可。
