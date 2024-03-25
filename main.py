@@ -4,7 +4,7 @@ import time
 import argparse
 import os
 
-from utils import reserve
+from utils import reserve, get_user_credentials
 get_current_time = lambda action: time.strftime("%H:%M:%S", time.localtime(time.time() + 8*3600)) if action else time.strftime("%H:%M:%S", time.localtime(time.time()))
 get_current_dayofweek = lambda action: time.strftime("%A", time.localtime(time.time() + 8*3600)) if action else time.strftime("%A", time.localtime(time.time()))
 
@@ -12,7 +12,7 @@ get_current_dayofweek = lambda action: time.strftime("%A", time.localtime(time.t
 SLEEPTIME = 0.2 # 每次抢座的间隔
 ENDTIME = "07:01:00" # 根据学校的预约座位时间+1min即可
 
-ENABLE_SLIDER = True # 是否有滑块验证
+ENABLE_SLIDER = False # 是否有滑块验证
 MAX_ATTEMPT = 4 # 最大尝试次数
 
                 
@@ -24,12 +24,13 @@ def login_and_reserve(users, usernames, passwords, action, success_list=None):
         success_list = [False] * len(users)
     current_dayofweek = get_current_dayofweek(action)
     for index, user in enumerate(users):
-        username, password, times, roomid, seatid, dayofweek = user.values()
+        username, password, times, roomid, seatid, daysofweek = user.values()
         if action:
             username, password = usernames.split(',')[index], passwords.split(',')[index]
-        if(dayofweek != current_dayofweek):
+        if(current_dayofweek not in daysofweek):
             continue
         if not success_list[index]: 
+            print(f"{username} -- {times} -- {seatid} try")
             s = reserve(sleep_time=SLEEPTIME, enable_slider=ENABLE_SLIDER)
             s.get_login_status()
             s.login(username, password)
@@ -43,15 +44,11 @@ def main(users, action=False):
     current_time = get_current_time(action)
     print(f"start time {current_time}")
     attempt_times = 0
-    try:
-        usernames = os.environ['USERNAMES'] if action else ""
-        passwords = os.environ['PASSWORDS'] if action else ""
-    except KeyError:
-        print("github secret keys not config correctly.")
-        return 
+    if action:
+        usernames, passwords = get_user_credentials(action)
     success_list = None
     current_dayofweek = get_current_dayofweek(action)
-    today_reservation_num = sum(1 for d in users if d.get('dayofweek') == current_dayofweek)
+    today_reservation_num = sum(1 for d in users if current_dayofweek in d.get('daysofweek'))
     while current_time < ENDTIME:
         attempt_times += 1
         try:
@@ -67,14 +64,13 @@ def main(users, action=False):
 def debug(users, action):
     suc = False
     if action:
-        usernames = os.environ['USERNAMES']
-        passwords = os.environ['PASSWORDS']
+        usernames, passwords = get_user_credentials(action)
     current_dayofweek = get_current_dayofweek(action)
     for index, user in enumerate(users):
-        username, password, times, roomid, seatid, dayofweek = user.values()
+        username, password, times, roomid, seatid, daysofweek = user.values()
         if action:
             username ,password = usernames.split(',')[index], passwords.split(',')[index]
-        if(dayofweek != current_dayofweek):
+        if(current_dayofweek not in daysofweek):
             continue
         s = reserve(sleep_time=SLEEPTIME, enable_slider=ENABLE_SLIDER)
         s.get_login_status()
