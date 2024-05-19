@@ -48,7 +48,7 @@ def login_and_reserve(users, usernames, passwords, action, success_list=None):
 
 def main(users, action=False):
     current_time = get_current_time(action)
-    logging.info(f"start time {current_time}, action {"on" if action else "off"}")
+    logging.info(f"start time {current_time}, action {'on' if action else 'off'}")
     attempt_times = 0
     if action:
         usernames, passwords = get_user_credentials(action)
@@ -70,7 +70,7 @@ def main(users, action=False):
 def debug(users, action=False):
     logging.info(f"Global settings: \nSLEEPTIME: {SLEEPTIME}\nENDTIME: {ENDTIME}\nENABLE_SLIDER: {ENABLE_SLIDER}\nRESERVE_NEXT_DAY: {RESERVE_NEXT_DAY}")
     suc = False
-    logging.info(f" Debug Mode start! , action {"on" if action else "off"}")
+    logging.info(f" Debug Mode start! , action {'on' if action else 'off'}")
     if action:
         usernames, passwords = get_user_credentials(action)
     current_dayofweek = get_current_dayofweek(action)
