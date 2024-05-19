@@ -32,7 +32,7 @@ def login_and_reserve(users, usernames, passwords, action, success_list=None):
             continue
         if not success_list[index]: 
             print(f"{username} -- {times} -- {seatid} try")
-            s = reserve(sleep_time=SLEEPTIME, enable_slider=ENABLE_SLIDER)
+            s = reserve(sleep_time=SLEEPTIME, enable_slider=ENABLE_SLIDER, reserve_next_day=RESERVE_NEXT_DAY)
             s.get_login_status()
             s.login(username, password)
             s.requests.headers.update({'Host': 'office.chaoxing.com'})
