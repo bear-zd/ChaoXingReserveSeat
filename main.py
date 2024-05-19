@@ -84,7 +84,7 @@ def debug(users, action):
 def get_roomid(**kwargs):
     username = input("请输入用户名：")
     password = input("请输入密码：")
-    s = reserve(sleep_time=SLEEPTIME, enable_slider=ENABLE_SLIDER)
+    s = reserve(sleep_time=SLEEPTIME, enable_slider=ENABLE_SLIDER, reserve_next_day=RESERVE_NEXT_DAY)
     s.get_login_status()
     s.login(username=username, password=password)
     s.requests.headers.update({'Host': 'office.chaoxing.com'})
