@@ -105,8 +105,7 @@ class reserve:
                 logging.info(f"Get token: {token}")
                 captcha = self.resolve_captcha(roomid, token, action) if self.enable_slider else "" 
                 logging.info(f"Captcha token {captcha}")
-                suc = self.get_submit(self.submit_url, times,
-                                      token, roomid, seat, captcha, action)
+                suc = self.get_submit(self.submit_url, times=times,token=token, roomid=roomid, seatid=seat, captcha=captcha, action=action)
                 if suc:
                     return suc
                 time.sleep(self.sleep_time)
@@ -169,6 +168,7 @@ class reserve:
         }
         response = self.requests.get(url=url, params=params)
         content = response.text
+        print(content)
         data = content.replace("jQuery33105878581853212221_1698141785783(",
                             ")").replace(")", "")
         data = json.loads(data)

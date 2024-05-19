@@ -15,9 +15,9 @@ get_current_dayofweek = lambda action: time.strftime("%A", time.localtime(time.t
 SLEEPTIME = 0.2 # 每次抢座的间隔
 ENDTIME = "07:01:00" # 根据学校的预约座位时间+1min即可
 
-ENABLE_SLIDER = False # 是否有滑块验证
+ENABLE_SLIDER = True # 是否有滑块验证
 MAX_ATTEMPT = 4 # 最大尝试次数
-RESERVE_NEXT_DAY = False # 预约明天而不是今天的
+RESERVE_NEXT_DAY = True # 预约明天而不是今天的
 
                 
 
@@ -68,6 +68,7 @@ def main(users, action=False):
             return
 
 def debug(users, action=False):
+    logging.info(f"Global settings: \nSLEEPTIME: {SLEEPTIME}\nENDTIME: {ENDTIME}\nENABLE_SLIDER: {ENABLE_SLIDER}\nRESERVE_NEXT_DAY: {RESERVE_NEXT_DAY}")
     suc = False
     logging.info(f" Debug Mode start! , action {"on" if action else "off"}")
     if action:
@@ -75,10 +76,14 @@ def debug(users, action=False):
     current_dayofweek = get_current_dayofweek(action)
     for index, user in enumerate(users):
         username, password, times, roomid, seatid, daysofweek = user.values()
+        if type(seatid) == str:
+            seatid = [seatid]
         if action:
             username ,password = usernames.split(',')[index], passwords.split(',')[index]
         if(current_dayofweek not in daysofweek):
+            logging.info("Today not set to reserve")
             continue
+        logging.info(f"----------- {username} -- {times} -- {seatid} try -----------")
         s = reserve(sleep_time=SLEEPTIME, enable_slider=ENABLE_SLIDER)
         s.get_login_status()
         s.login(username, password)
