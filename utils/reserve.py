@@ -6,6 +6,11 @@ import time
 import logging
 import datetime
 from urllib3.exceptions import InsecureRequestWarning
+def get_date(day_offset: int=0):
+    today = datetime.datetime.now().date()
+    offset_day = today + datetime.timedelta(days=day_offset)
+    tomorrow = offset_day.strftime("%Y-%m-%d")
+    return tomorrow
 
 class reserve:
     def __init__(self, sleep_time=0.2, max_attempt=5, enable_slider=False, reserve_next_day=False):
@@ -19,6 +24,7 @@ class reserve:
         self.fail_dict = []
         self.submit_msg = []
         self.requests = requests.session()
+        self.token_pattern = re.compile("token = '(.*?)'")
         self.headers = {
             "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
             "Accept-Language": "zh-CN,zh;q=0.9,en-US;q=0.8,en;q=0.7",
@@ -119,9 +125,22 @@ class reserve:
         for i in ori_data["data"]["seatRoomList"]:
             info = f'{i["firstLevelName"]}-{i["secondLevelName"]}-{i["thirdLevelName"]} id为：{i["id"]}'
             print(info)
+    
+    def get_submit_token(self, roomid, page_token):
+        url = f"https://reserve.chaoxing.com/front/third/apps/seat/select?id={roomid}&day={get_date(0)}&backLevel=2&pageToken={page_token}&deptIdEnc=369ce50576aa680d"
+        referer = 'https://office.chaoxing.com/front/apps/seat/list?deptIdEnc=369ce50576aa680d'
+        headers = {
+            "referer": referer
+        }
+        with self.requests.get(url=url, headers=headers) as res:
+            text = res.text
+            print(text)
+            return self.token_pattern.findall(text)[0], str(res.url)
 
     def resolve_captcha(self, roomid, page_token, action):
         logging.info(f"Start to resolve captcha token")
+        # submit_token, referer = self.get_submit_token(roomid, page_token)
+        # logging.info(submit_token)
         captcha_token, bg, tp = self.get_slide_captcha_data(roomid, page_token, action)
         logging.info(f"Successfully get prepared captcha_token {captcha_token}")
         x = self.x_distance(bg, tp)
@@ -150,12 +169,12 @@ class reserve:
 
     def get_slide_captcha_data(self, roomid, page_token, action):
         url = "https://captcha.chaoxing.com/captcha/get/verification/image"
-        delta_day = 1 if self.reserve_next_day else 0
-        day = datetime.date.today() + datetime.timedelta(days=0+delta_day) if not action else datetime.date.today() + datetime.timedelta(days=1+delta_day)  # 预约今天，修改days=1表示预约明天
+        
+        day = get_date(1) if action else get_date()
+
         timestamp = int(time.time() * 1000)
         capture_key, token = generate_captcha_key(timestamp)
         referer = f"https://reserve.chaoxing.com/front/third/apps/seat/select?id={roomid}&day={str(day)}&backLevel=2&pageToken={page_token}"
-
         params = {
             "callback": "jQuery33105878581853212221_1698141785783",
             "captchaId": "42sxgHoTPTKbt0uZxPJ7ssOvtXr3ZgZ1",
@@ -201,3 +220,4 @@ class reserve:
         _, _, _, max_loc = cv2.minMaxLoc(res)  # 寻找最优匹配
         tl = max_loc
         return tl[0]
+
