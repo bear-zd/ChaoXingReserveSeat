@@ -7,7 +7,7 @@ import datetime
 from urllib3.exceptions import InsecureRequestWarning
 
 class reserve:
-    def __init__(self, sleep_time=0.2, max_attempt=5, enable_slider=False):
+    def __init__(self, sleep_time=0.2, max_attempt=5, enable_slider=False, reserve_next_day=False):
         self.login_page = "https://passport2.chaoxing.com/mlogin?loginType=1&newversion=true&fid="
         self.url = "https://office.chaoxing.com/front/third/apps/seat/code?id={}&seatNum={}"
         self.submit_url = "https://office.chaoxing.com/data/apps/seat/submit"
@@ -36,7 +36,7 @@ class reserve:
         self.sleep_time = sleep_time
         self.max_attempt = max_attempt
         self.enable_slider = enable_slider
-
+        self.reserve_next_day = reserve_next_day
         requests.packages.urllib3.disable_warnings(InsecureRequestWarning)
 
     def _get_token(self, url):
@@ -52,9 +52,10 @@ class reserve:
         self.requests.get(url=self.login_page, verify=False)
 
     def get_submit(self, url, times, token, roomid, seatid, captcha="", action=False):
-        day = datetime.date.today() + datetime.timedelta(days=0)  # 预约今天，修改days=1表示预约明天
+        delta_day = 1 if self.reserve_next_day else 0
+        day = datetime.date.today() + datetime.timedelta(days=0+delta_day)  # 预约今天，修改days=1表示预约明天
         if action:
-            day = datetime.date.today() + datetime.timedelta(days=1)  # 预约今天，修改days=1表示预约明天
+            day = datetime.date.today() + datetime.timedelta(days=1+delta_day)  # 由于action时区问题导致其早+8区一天
         parm = {
             "roomId": roomid,
             "startTime": times[0],
@@ -113,6 +114,7 @@ class reserve:
         for i in ori_data["data"]["seatRoomList"]:
             info = f'{i["firstLevelName"]}-{i["secondLevelName"]}-{i["thirdLevelName"]} id为：{i["id"]}'
             print(info)
+
     def resolve_captcha(self, roomid, page_token, action):
         captcha_token, bg, tp = self.get_slide_captcha_data(roomid, page_token, action)
         x = self.x_distance(bg, tp)
@@ -139,7 +141,8 @@ class reserve:
 
     def get_slide_captcha_data(self, roomid, page_token, action):
         url = "https://captcha.chaoxing.com/captcha/get/verification/image"
-        day = datetime.date.today() + datetime.timedelta(days=0) if not action else datetime.date.today() + datetime.timedelta(days=1)  # 预约今天，修改days=1表示预约明天
+        delta_day = 1 if self.reserve_next_day else 0
+        day = datetime.date.today() + datetime.timedelta(days=0+delta_day) if not action else datetime.date.today() + datetime.timedelta(days=1+delta_day)  # 预约今天，修改days=1表示预约明天
         timestamp = int(time.time() * 1000)
         capture_key, token = generate_captcha_key(timestamp)
         referer = f"https://reserve.chaoxing.com/front/third/apps/seat/select?id={roomid}&day={str(day)}&backLevel=2&pageToken={page_token}"
