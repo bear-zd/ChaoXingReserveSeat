@@ -3,6 +3,7 @@ import json
 import requests
 import re
 import time
+import logging
 import datetime
 from urllib3.exceptions import InsecureRequestWarning
 
@@ -65,12 +66,13 @@ class reserve:
             "captcha": captcha,
             "token": token
         }
+        logging.info(f"submit parameter {parm} ")
         parm["enc"] = enc(parm)
         html = self.requests.post(
             url=url, params=parm, verify=True).content.decode('utf-8')
         self.submit_msg.append(
             times[0] + "~" + times[1] + ':  ' + str(json.loads(html)))
-        print(json.loads(html))
+        logging.info(json.loads(html))
        
         return json.loads(html)["success"]
 
@@ -88,8 +90,10 @@ class reserve:
             url=self.login_url, params=parm, verify=False)
         obj = jsons.json()
         if obj['status']:
+            logging.info(f"User {username} login successfully")
             return (True, '')
         else:
+            logging.info(f"User {username} login failed. Please check you password and username! ")
             return (False, obj['msg2'])
 
 
@@ -98,7 +102,9 @@ class reserve:
             suc = False
             while ~suc and self.max_attempt > 0:
                 token = self._get_token(self.url.format(roomid, seat))
+                logging.info(f"Get token: {token}")
                 captcha = self.resolve_captcha(roomid, token, action) if self.enable_slider else "" 
+                logging.info(f"Captcha token {captcha}")
                 suc = self.get_submit(self.submit_url, times,
                                       token, roomid, seat, captcha, action)
                 if suc:
@@ -116,8 +122,11 @@ class reserve:
             print(info)
 
     def resolve_captcha(self, roomid, page_token, action):
+        logging.info(f"Start to resolve captcha token")
         captcha_token, bg, tp = self.get_slide_captcha_data(roomid, page_token, action)
+        logging.info(f"Successfully get prepared captcha_token {captcha_token}")
         x = self.x_distance(bg, tp)
+        logging.info(f"Successfully calculate the captcha distance {x}")
         headers = {
             "Referer": "https://reserve.chaoxing.com/"
         }
@@ -137,6 +146,7 @@ class reserve:
         text = response.text.replace('jQuery33105878581853212221_1698141785783(', "").replace(')', "")
         # 解析出验证签名
         data = json.loads(text)
+        logging.info(f"Successfully resolve the captcha token {data}")
         return json.loads(data["extraData"])['validate']
 
     def get_slide_captcha_data(self, roomid, page_token, action):

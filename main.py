@@ -3,6 +3,9 @@ import json
 import time
 import argparse
 import os
+import logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
 
 from utils import reserve, get_user_credentials
 get_current_time = lambda action: time.strftime("%H:%M:%S", time.localtime(time.time() + 8*3600)) if action else time.strftime("%H:%M:%S", time.localtime(time.time()))
@@ -14,11 +17,12 @@ ENDTIME = "07:01:00" # 根据学校的预约座位时间+1min即可
 
 ENABLE_SLIDER = False # 是否有滑块验证
 MAX_ATTEMPT = 4 # 最大尝试次数
-RESERVE_NEXT_DAY = False
+RESERVE_NEXT_DAY = False # 预约明天而不是今天的
 
                 
 
 def login_and_reserve(users, usernames, passwords, action, success_list=None):
+    logging.info(f"Global settings: \nSLEEPTIME: {SLEEPTIME}\nENDTIME: {ENDTIME}\nENABLE_SLIDER: {ENABLE_SLIDER}\nRESERVE_NEXT_DAY: {RESERVE_NEXT_DAY}")
     if len(usernames.split(",")) != len(users):
         raise Exception("user number should match the number of config")
     if success_list is None:
@@ -29,9 +33,10 @@ def login_and_reserve(users, usernames, passwords, action, success_list=None):
         if action:
             username, password = usernames.split(',')[index], passwords.split(',')[index]
         if(current_dayofweek not in daysofweek):
+            logging.info("Today not set to reserve")
             continue
         if not success_list[index]: 
-            print(f"{username} -- {times} -- {seatid} try")
+            logging.info(f"----------- {username} -- {times} -- {seatid} try -----------")
             s = reserve(sleep_time=SLEEPTIME, enable_slider=ENABLE_SLIDER, reserve_next_day=RESERVE_NEXT_DAY)
             s.get_login_status()
             s.login(username, password)
@@ -43,7 +48,7 @@ def login_and_reserve(users, usernames, passwords, action, success_list=None):
 
 def main(users, action=False):
     current_time = get_current_time(action)
-    print(f"start time {current_time}")
+    logging.info(f"start time {current_time}, action {"on" if action else "off"}")
     attempt_times = 0
     if action:
         usernames, passwords = get_user_credentials(action)
@@ -52,18 +57,19 @@ def main(users, action=False):
     today_reservation_num = sum(1 for d in users if current_dayofweek in d.get('daysofweek'))
     while current_time < ENDTIME:
         attempt_times += 1
-        try:
-            success_list = login_and_reserve(users, usernames, passwords, action, success_list)
-        except Exception as e:
-            print(f"An error occurred: {e}")
+        # try:
+        success_list = login_and_reserve(users, usernames, passwords, action, success_list)
+        # except Exception as e:
+        #     print(f"An error occurred: {e}")
         print(f"attempt time {attempt_times}, time now {current_time}, success list {success_list}")
         current_time = get_current_time(action)
         if sum(success_list) == today_reservation_num:
             print(f"reserved successfully!")
             return
 
-def debug(users, action):
+def debug(users, action=False):
     suc = False
+    logging.info(f" Debug Mode start! , action {"on" if action else "off"}")
     if action:
         usernames, passwords = get_user_credentials(action)
     current_dayofweek = get_current_dayofweek(action)
