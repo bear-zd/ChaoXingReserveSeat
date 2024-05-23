@@ -22,7 +22,7 @@ pip install cryptography
 如果有滑块验证，则需要额外安装numpy和opencv-python
 
 ```bash
-pip install cryptography, opencv-python
+pip install numpy, opencv-python
 ```
 
 #### 2、 获取roomid（图书馆id）和seatid（座位号）
