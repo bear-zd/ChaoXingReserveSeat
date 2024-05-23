@@ -5,7 +5,7 @@
 
 使用python消除了对js的依赖，请拉取最新版程序运行。
 
-该版本试验性支持滑块验证（因为没有账号进行测试，这里感谢：[runoob09学习通预约](https://github.com/runoob09/xxt_library_seat) 的代码），如果有滑块验证，请参考下面的**高级设置**部分
+该版本试验性支持滑块验证，目前已经过测试可以使用，如果有滑块验证，请参考下面的**高级设置**部分
 
 ## 如何使用
 
@@ -39,7 +39,7 @@ pip install cryptography, opencv-python
 
 #### 3、running
 
-由于脚本是检测系统时间为7点时进行预约（在main.py 第13行），如果有特殊要求可以修改。通过 `python main.py` 运行脚本, 添加参数 `-u config.json` 来指明配置文件路径
+由于脚本是检测系统时间为7点时进行预约（在main.py 第16行），如果有特殊要求可以修改。通过 `python main.py` 运行脚本, 添加参数 `-u config.json` 来指明配置文件路径
 
 运行`python main.py -m debug`可以立即运行查看配置是否正确。
 

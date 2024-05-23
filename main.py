@@ -92,7 +92,7 @@ def debug(users, action=False):
         if suc:
             return
 
-def get_roomid(**kwargs):
+def get_roomid(args1, args2):
     username = input("请输入用户名：")
     password = input("请输入密码：")
     s = reserve(sleep_time=SLEEPTIME, enable_slider=ENABLE_SLIDER, reserve_next_day=RESERVE_NEXT_DAY)
