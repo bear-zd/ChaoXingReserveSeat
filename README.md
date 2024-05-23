@@ -1,11 +1,11 @@
 # ChaoXingServerSeat
 超星图书馆座位预约脚本
 
-## 注意
+## 注意 请拉取rebuild分支程序运行
 
-请拉取最新版程序运行。新字段enc使用py2js对加密的js脚本进行模拟，同时减少了环境依赖的安装。但是相较于之前的速度会较慢（后续有机会再尝试提高性能）
+该分支下使用py2js对加密的js脚本进行模拟，同时减少了环境依赖的安装。但是相较于之前的速度会较慢（后续有机会再尝试提高性能）而且要求python版本低于3.12
 
-main分支不支持滑块验证（如果有滑块验证需求，请拉取rebuild分支的代码，但是不保证能够完整运行，如遇bug请在滑块issue [滑块issue](https://github.com/bear-zd/ChaoXingReserveSeat/issues/4) 中提出）
+main分支不支持滑块验证（如果有滑块验证需求，请拉取rebuild分支的代码，但是不保证能够完整运行，如遇bug请在滑块issue [滑块issue](https://github.com/bear-zd/ChaoXingReserveSeat/issues/15) 中提出）
 
 ## 如何使用
 
