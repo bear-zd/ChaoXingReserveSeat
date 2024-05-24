@@ -15,8 +15,8 @@ get_current_dayofweek = lambda action: time.strftime("%A", time.localtime(time.t
 SLEEPTIME = 0.2 # 每次抢座的间隔
 ENDTIME = "07:01:00" # 根据学校的预约座位时间+1min即可
 
-ENABLE_SLIDER = True # 是否有滑块验证
-MAX_ATTEMPT = 4 # 最大尝试次数
+ENABLE_SLIDER = False # 是否有滑块验证
+MAX_ATTEMPT = 5 # 最大尝试次数
 RESERVE_NEXT_DAY = False # 预约明天而不是今天的
 
                 
@@ -37,7 +37,7 @@ def login_and_reserve(users, usernames, passwords, action, success_list=None):
             continue
         if not success_list[index]: 
             logging.info(f"----------- {username} -- {times} -- {seatid} try -----------")
-            s = reserve(sleep_time=SLEEPTIME, enable_slider=ENABLE_SLIDER, reserve_next_day=RESERVE_NEXT_DAY)
+            s = reserve(sleep_time=SLEEPTIME, max_attempt=MAX_ATTEMPT, enable_slider=ENABLE_SLIDER, reserve_next_day=RESERVE_NEXT_DAY)
             s.get_login_status()
             s.login(username, password)
             s.requests.headers.update({'Host': 'office.chaoxing.com'})
@@ -84,7 +84,7 @@ def debug(users, action=False):
             logging.info("Today not set to reserve")
             continue
         logging.info(f"----------- {username} -- {times} -- {seatid} try -----------")
-        s = reserve(sleep_time=SLEEPTIME, enable_slider=ENABLE_SLIDER)
+        s = reserve(sleep_time=SLEEPTIME,  max_attempt=MAX_ATTEMPT, enable_slider=ENABLE_SLIDER)
         s.get_login_status()
         s.login(username, password)
         s.requests.headers.update({'Host': 'office.chaoxing.com'})
@@ -95,7 +95,7 @@ def debug(users, action=False):
 def get_roomid(args1, args2):
     username = input("请输入用户名：")
     password = input("请输入密码：")
-    s = reserve(sleep_time=SLEEPTIME, enable_slider=ENABLE_SLIDER, reserve_next_day=RESERVE_NEXT_DAY)
+    s = reserve(sleep_time=SLEEPTIME, max_attempt=MAX_ATTEMPT, enable_slider=ENABLE_SLIDER, reserve_next_day=RESERVE_NEXT_DAY)
     s.get_login_status()
     s.login(username=username, password=password)
     s.requests.headers.update({'Host': 'office.chaoxing.com'})

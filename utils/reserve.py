@@ -13,7 +13,7 @@ def get_date(day_offset: int=0):
     return tomorrow
 
 class reserve:
-    def __init__(self, sleep_time=0.2, max_attempt=5, enable_slider=False, reserve_next_day=False):
+    def __init__(self, sleep_time=0.2, max_attempt=50, enable_slider=False, reserve_next_day=False):
         self.login_page = "https://passport2.chaoxing.com/mlogin?loginType=1&newversion=true&fid="
         self.url = "https://office.chaoxing.com/front/third/apps/seat/code?id={}&seatNum={}"
         self.submit_url = "https://office.chaoxing.com/data/apps/seat/submit"
@@ -122,7 +122,12 @@ class reserve:
         text = response.text.replace('jQuery33109180509737430778_1716381333117(', "").replace(')', "")
         data = json.loads(text)
         logging.info(f"Successfully resolve the captcha token {data}")
-        return json.loads(data["extraData"])['validate']
+        try: 
+           validate_val = json.loads(data["extraData"])['validate']
+           return validate_val
+        except KeyError as e:
+            logging.info("Can't load validate value. Maybe server return mistake.")
+            return ""
 
     def get_slide_captcha_data(self):
         url = "https://captcha.chaoxing.com/captcha/get/verification/image"
