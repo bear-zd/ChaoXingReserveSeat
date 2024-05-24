@@ -37,7 +37,7 @@ def login_and_reserve(users, usernames, passwords, action, success_list=None):
             continue
         if not success_list[index]: 
             logging.info(f"----------- {username} -- {times} -- {seatid} try -----------")
-            s = reserve(sleep_time=SLEEPTIME, enable_slider=ENABLE_SLIDER, reserve_next_day=RESERVE_NEXT_DAY)
+            s = reserve(sleep_time=SLEEPTIME, max_attempt=MAX_ATTEMPT, enable_slider=ENABLE_SLIDER, reserve_next_day=RESERVE_NEXT_DAY)
             s.get_login_status()
             s.login(username, password)
             s.requests.headers.update({'Host': 'office.chaoxing.com'})
@@ -84,7 +84,7 @@ def debug(users, action=False):
             logging.info("Today not set to reserve")
             continue
         logging.info(f"----------- {username} -- {times} -- {seatid} try -----------")
-        s = reserve(sleep_time=SLEEPTIME, enable_slider=ENABLE_SLIDER)
+        s = reserve(sleep_time=SLEEPTIME,  max_attempt=MAX_ATTEMPT, enable_slider=ENABLE_SLIDER)
         s.get_login_status()
         s.login(username, password)
         s.requests.headers.update({'Host': 'office.chaoxing.com'})
@@ -95,7 +95,7 @@ def debug(users, action=False):
 def get_roomid(args1, args2):
     username = input("请输入用户名：")
     password = input("请输入密码：")
-    s = reserve(sleep_time=SLEEPTIME, enable_slider=ENABLE_SLIDER, reserve_next_day=RESERVE_NEXT_DAY)
+    s = reserve(sleep_time=SLEEPTIME, max_attempt=MAX_ATTEMPT, enable_slider=ENABLE_SLIDER, reserve_next_day=RESERVE_NEXT_DAY)
     s.get_login_status()
     s.login(username=username, password=password)
     s.requests.headers.update({'Host': 'office.chaoxing.com'})
