@@ -33,6 +33,6 @@ def enc(submit_info):
 def generate_captcha_key(timestamp: int):
     captcha_key = md5((str(timestamp) + str(uuid1())).encode("utf-8")).hexdigest()
     encoded_timestamp = md5(
-        (str(encoded_timestamp) + "42sxgHoTPTKbt0uZxPJ7ssOvtXr3ZgZ1" + "slide" + captcha_key).encode("utf-8")
-    ).hexdigest() + ":" + str(int(encoded_timestamp) + 0x493e0)
+        (str(timestamp) + "42sxgHoTPTKbt0uZxPJ7ssOvtXr3ZgZ1" + "slide" + captcha_key).encode("utf-8")
+    ).hexdigest() + ":" + str(int(timestamp) + 0x493e0)
     return [captcha_key, encoded_timestamp]
