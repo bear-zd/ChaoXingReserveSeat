@@ -122,7 +122,12 @@ class reserve:
         text = response.text.replace('jQuery33109180509737430778_1716381333117(', "").replace(')', "")
         data = json.loads(text)
         logging.info(f"Successfully resolve the captcha token {data}")
-        return json.loads(data["extraData"])['validate']
+        try: 
+           validate_val = json.loads(data["extraData"])['validate']
+           return validate_val
+        except KeyError as e:
+            logging.info("Can't load validate value. Maybe server return mistake.")
+            return ""
 
     def get_slide_captcha_data(self):
         url = "https://captcha.chaoxing.com/captcha/get/verification/image"
